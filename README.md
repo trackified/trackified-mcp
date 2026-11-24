@@ -82,8 +82,9 @@ npm test        # builds (esbuild) and runs the tests: in-memory MCP client + mo
 npm run lint && npm run typecheck
 ```
 
-The `trackified` SDK is bundled into `dist/` at build time, so the published package's only runtime
-dependencies are `@modelcontextprotocol/sdk` and `zod`.
+The `trackified` SDK is a build-time dependency, installed from the attested v0.1.0 tarball on its
+GitHub Release, and esbuild bundles it into `dist/`. The published package's only runtime dependencies
+are `@modelcontextprotocol/sdk` and `zod`. Once `trackified` is on npm, switch the devDependency to `^0.1.0`.
 
 ## License
 

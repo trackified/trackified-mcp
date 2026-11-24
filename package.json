@@ -44,7 +44,7 @@
     "@biomejs/biome": "2.6.8",
     "@types/node": "^18.19.0",
     "esbuild": "^0.28.2",
-    "trackified": "git+https://github.com/trackified/trackified-node.git#v0.1.0",
+    "trackified": "https://github.com/trackified/trackified-node/releases/download/v0.1.0/trackified-0.1.0.tgz",
     "typescript": "~5.9.3"
   }
 }
