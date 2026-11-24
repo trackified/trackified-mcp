@@ -53,7 +53,7 @@ Other clients: run `npx -y trackified-mcp` with `TRACKIFIED_API_KEY` in the envi
 
 | Tool | What it does | Read-only |
 | --- | --- | --- |
-| `create_tracking` | Start tracking a parcel (carrier auto-detected if omitted) | |
+| `create_tracking` | Start tracking a parcel (carrier ID or free-text name; auto-detected if omitted) | |
 | `bulk_create_trackings` | Add a batch of trackings, per-row results | |
 | `get_tracking` | One tracking with its full event history | yes |
 | `list_trackings` | List/filter trackings by status, carrier, custom_id, number | yes |
@@ -62,14 +62,17 @@ Other clients: run `npx -y trackified-mcp` with `TRACKIFIED_API_KEY` in the envi
 | `retrack` | Ask for a fresh carrier check within a minute | |
 | `detect_carrier` | Guess the carrier for a tracking number | yes |
 | `list_carriers` | Carriers Trackified tracks | yes |
+| `resolve_carrier` | Map a free-text carrier name or provider slug to a carrier ID | yes |
 | `search_carriers` | Search the full carrier catalog by name | yes |
 | `create_webhook` | Register a webhook endpoint (returns its secret once) | |
 | `list_webhooks` | List webhook endpoints | yes |
+| `update_webhook` | Change a webhook's URL, event types or enabled state | |
 | `delete_webhook` | Remove a webhook endpoint (destructive) | |
 | `list_webhook_deliveries` | Recent delivery attempts, for debugging endpoints | yes |
 | `get_usage` | This month's quota, usage and rate limit | yes |
+| `health` | Check whether the API is up | yes |
 
-API key management is deliberately not exposed as tools. Use the dashboard or the SDK.
+API key management and webhook secret rotation are deliberately not exposed as tools (both return secrets). Use the dashboard or the SDK.
 
 Try asking: *"Track 9434650110837017316201 with USPS for order 1001"*, *"Which of my parcels have an exception?"*,
 *"Why are my webhooks failing?"*, *"How much of my quota is left?"*

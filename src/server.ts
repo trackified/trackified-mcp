@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { TRACKING_STATUSES, type Trackified, type TrackifiedError, WEBHOOK_EVENT_TYPES } from "trackified";
 import { z } from "zod";
 
-export const VERSION = "0.1.0";
+export const VERSION = "0.2.0";
 
 type ToolResult = { content: Array<{ type: "text"; text: string }>; isError?: boolean };
 
@@ -33,7 +33,7 @@ const trackingInput = {
     .string()
     .optional()
     .describe(
-      "Carrier ID such as usps, ups, fedex, dhl. Leave out to auto-detect; if detection is unsure the call fails with carrier_not_detected (use detect_carrier, then pass it).",
+      "Carrier ID such as usps, ups, fedex, dhl, or a free-text carrier name ('USPS Priority Mail', 'Royal Mail', 'dhl_express'); the API maps it to our ID and the response shows that ID (an unknown name fails with carrier_not_supported; check it with resolve_carrier). Leave out to auto-detect; if detection is unsure the call fails with carrier_not_detected (use detect_carrier, then pass it).",
     ),
   custom_id: z.string().optional().describe("Your own reference, such as an order number"),
   customer_email: z.email().optional().describe("Recipient email to associate with the tracking"),
@@ -48,7 +48,7 @@ export function createServer(client: Trackified): McpServer {
     {
       title: "Add a tracking",
       description:
-        "Start tracking a parcel. Returns the tracking (id, status, events). Counts against the monthly quota (see get_usage). Safe to retry: an idempotency key is sent automatically.",
+        "Start tracking a parcel. carrier may be our ID or a free-text carrier name. Returns the tracking (id, status, events). Counts against the monthly quota (see get_usage). Safe to retry: an idempotency key is sent automatically.",
       inputSchema: trackingInput,
       annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true },
     },
@@ -151,6 +151,18 @@ export function createServer(client: Trackified): McpServer {
   );
 
   server.registerTool(
+    "resolve_carrier",
+    {
+      title: "Resolve a carrier name",
+      description:
+        "Map a free-text carrier name or another provider's slug ('FedEx SmartPost', 'Correos de España', 'royal-mail') to the Trackified carrier ID. Returns { carrier, name, confidence, matched }, or { carrier: null } when the carrier is unknown or not supported.",
+      inputSchema: { name: z.string().min(1).describe("Carrier name, service name or provider slug") },
+      annotations: RO,
+    },
+    ({ name }) => run(async () => (await client.carriers.resolve(name)) ?? { carrier: null, confidence: 0 }),
+  );
+
+  server.registerTool(
     "list_carriers",
     {
       title: "List supported carriers",
@@ -204,6 +216,29 @@ export function createServer(client: Trackified): McpServer {
   );
 
   server.registerTool(
+    "update_webhook",
+    {
+      title: "Update a webhook endpoint",
+      description:
+        "Change a webhook's URL, event types or enabled state (a disabled webhook receives nothing). Pass at least one field; the others stay as they are. The signing secret does not change.",
+      inputSchema: {
+        id: id("Webhook (wh_…)"),
+        url: z.url().optional().describe("New HTTPS endpoint"),
+        event_types: z.array(z.enum(WEBHOOK_EVENT_TYPES)).min(1).optional().describe("Events to send"),
+        enabled: z.boolean().optional().describe("false to pause deliveries, true to resume"),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
+    ({ id, url, event_types, enabled }) =>
+      run(async () => {
+        if (url === undefined && event_types === undefined && enabled === undefined) {
+          throw new Error("Pass at least one of url, event_types or enabled.");
+        }
+        return client.webhooks.update(id, { url, eventTypes: event_types, enabled });
+      }),
+  );
+
+  server.registerTool(
     "delete_webhook",
     {
       title: "Remove a webhook endpoint",
@@ -236,6 +271,18 @@ export function createServer(client: Trackified): McpServer {
       annotations: RO,
     },
     () => run(() => client.usage.get()),
+  );
+
+  server.registerTool(
+    "health",
+    {
+      title: "Check API health",
+      description:
+        'Check whether the Trackified API is up. Returns { status: "ok" }; when it is degraded the call fails with status 503.',
+      inputSchema: {},
+      annotations: RO,
+    },
+    () => run(() => client.health()),
   );
 
   return server;

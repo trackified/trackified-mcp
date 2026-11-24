@@ -1,6 +1,6 @@
 {
   "name": "trackified-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "mcpName": "io.github.trackified/trackified-mcp",
   "description": "MCP server for the Trackified parcel-tracking API: add and follow shipments, detect carriers, manage webhooks",
   "license": "MIT",
@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",
-    "trackified": "^0.1.0",
+    "trackified": "^0.2.0",
     "zod": "^4.0.0"
   },
   "devDependencies": {

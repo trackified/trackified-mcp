@@ -41,15 +41,20 @@ test("lists every tool with schemas and hints", async () => {
     "detect_carrier",
     "get_tracking",
     "get_usage",
+    "health",
     "list_carriers",
     "list_trackings",
     "list_webhook_deliveries",
     "list_webhooks",
+    "resolve_carrier",
     "retrack",
     "search_carriers",
     "stop_tracking",
     "update_tracking",
+    "update_webhook",
   ]);
+  assert.ok(!names.some((n) => n.includes("rotate")), "rotate-secret returns a secret; never a tool");
+  assert.match(tools.find((t) => t.name === "create_tracking").description, /free-text carrier name/);
   for (const t of tools) {
     assert.ok(t.description.length > 20, t.name);
     assert.equal(t.inputSchema.type, "object", t.name);
@@ -87,6 +92,9 @@ test("tools map to the right endpoints", async () => {
     ["create_webhook", { url: "https://example.com/h" }, "POST", "/v1/webhooks"],
     ["list_webhooks", {}, "GET", "/v1/webhooks"],
     ["delete_webhook", { id: "wh_1" }, "DELETE", "/v1/webhooks/wh_1"],
+    ["update_webhook", { id: "wh_1", enabled: false }, "PATCH", "/v1/webhooks/wh_1"],
+    ["resolve_carrier", { name: "USPS Priority" }, "GET", "/v1/carriers/resolve?name=USPS+Priority"],
+    ["health", {}, "GET", "/v1/health"],
     ["list_webhook_deliveries", { limit: 3 }, "GET", "/v1/webhook-deliveries?limit=3"],
     ["get_usage", {}, "GET", "/v1/account/usage"],
     ["bulk_create_trackings", { trackings: [{ tracking_number: "1" }] }, "POST", "/v1/trackings/bulk"],
@@ -122,4 +130,26 @@ test("invalid arguments are rejected before any request", async () => {
   const res = await client.callTool({ name: "list_trackings", arguments: { status: "lost" } });
   assert.equal(res.isError, true);
   assert.equal(calls.length, 0);
+});
+
+test("update_webhook sends snake_case fields and needs at least one", async () => {
+  const { client, calls } = await connect([{ body: { id: "wh_1", enabled: false } }]);
+  await client.callTool({
+    name: "update_webhook",
+    arguments: { id: "wh_1", event_types: ["tracking.delivered"], enabled: false },
+  });
+  assert.deepEqual(JSON.parse(calls[0].body), { event_types: ["tracking.delivered"], enabled: false });
+  const none = await connect([]);
+  const res = await none.client.callTool({ name: "update_webhook", arguments: { id: "wh_1" } });
+  assert.equal(res.isError, true);
+  assert.equal(none.calls.length, 0);
+});
+
+test("resolve_carrier returns the match or carrier null", async () => {
+  const hit = { carrier: "usps", name: "USPS", confidence: 0.97, matched: "alias" };
+  const { client } = await connect([{ body: hit }, { body: { carrier: null, confidence: 0 } }]);
+  const a = await client.callTool({ name: "resolve_carrier", arguments: { name: "USPS Priority Mail" } });
+  assert.deepEqual(JSON.parse(a.content[0].text), hit);
+  const b = await client.callTool({ name: "resolve_carrier", arguments: { name: "nope" } });
+  assert.deepEqual(JSON.parse(b.content[0].text), { carrier: null, confidence: 0 });
 });
