@@ -4,14 +4,14 @@
 parcel-tracking API. It lets Claude, Cursor and other MCP clients add trackings, read their events,
 detect carriers and manage webhooks. Built on the official [`trackified`](https://github.com/trackified/trackified-node) SDK.
 
-Runs locally over stdio. Needs Node.js 18+ and a Trackified API key (`tk_live_…` or `tk_test_…`).
+Runs locally over stdio. Needs Node.js 18+ and a Trackified API key (`live_…` or `test_…`).
 
 ## Setup
 
 ### Claude Code
 
 ```sh
-claude mcp add trackified -e TRACKIFIED_API_KEY=tk_live_... -- npx -y trackified-mcp
+claude mcp add trackified -e TRACKIFIED_API_KEY=live_... -- npx -y trackified-mcp
 ```
 
 ### Claude Desktop
@@ -24,7 +24,7 @@ Settings → Developer → Edit Config (`claude_desktop_config.json`):
     "trackified": {
       "command": "npx",
       "args": ["-y", "trackified-mcp"],
-      "env": { "TRACKIFIED_API_KEY": "tk_live_..." }
+      "env": { "TRACKIFIED_API_KEY": "live_..." }
     }
   }
 }
@@ -40,7 +40,7 @@ Settings → Developer → Edit Config (`claude_desktop_config.json`):
     "trackified": {
       "command": "npx",
       "args": ["-y", "trackified-mcp"],
-      "env": { "TRACKIFIED_API_KEY": "tk_live_..." }
+      "env": { "TRACKIFIED_API_KEY": "live_..." }
     }
   }
 }

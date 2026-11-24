@@ -194,10 +194,13 @@ export function createServer(client: Trackified): McpServer {
     {
       title: "Add a webhook endpoint",
       description:
-        "Register an HTTPS URL to receive signed tracking events. The response contains the signing secret ONCE; tell the user to store it. Leave event_types out to receive all events.",
+        "Register an HTTPS URL to receive signed tracking events. The response contains the signing secret ONCE; tell the user to store it. Leave event_types out to receive the default: tracking.updated and tracking.delivered.",
       inputSchema: {
         url: z.url().describe("HTTPS endpoint that will receive POSTed events"),
-        event_types: z.array(z.enum(WEBHOOK_EVENT_TYPES)).optional().describe("Events to send (default all)"),
+        event_types: z
+          .array(z.enum(WEBHOOK_EVENT_TYPES))
+          .optional()
+          .describe("Events to send (default: tracking.updated, tracking.delivered)"),
       },
       annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true },
     },

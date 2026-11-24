@@ -19,7 +19,7 @@
       "environmentVariables": [
         {
           "name": "TRACKIFIED_API_KEY",
-          "description": "Trackified API key (tk_live_… or tk_test_…)",
+          "description": "Trackified API key (live_… or test_…)",
           "isRequired": true,
           "isSecret": true
         },
