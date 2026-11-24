@@ -1,0 +1,50 @@
+{
+  "name": "trackified-mcp",
+  "version": "0.1.0",
+  "mcpName": "io.github.trackified/trackified-mcp",
+  "description": "MCP server for the Trackified parcel-tracking API: add and follow shipments, detect carriers, manage webhooks",
+  "license": "MIT",
+  "author": "Trackified",
+  "homepage": "https://github.com/trackified/trackified-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trackified/trackified-mcp.git"
+  },
+  "bugs": "https://github.com/trackified/trackified-mcp/issues",
+  "keywords": [
+    "mcp",
+    "modelcontextprotocol",
+    "trackified",
+    "parcel-tracking",
+    "shipping"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "trackified-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "esbuild src/index.ts src/server.ts --bundle --platform=node --target=node18 --format=esm --outdir=dist --banner:js='#!/usr/bin/env node' --external:@modelcontextprotocol/sdk --external:zod",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "prepublishOnly": "npm test"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.8",
+    "@types/node": "^18.19.0",
+    "esbuild": "^0.28.2",
+    "trackified": "git+https://github.com/trackified/trackified-node.git#v0.1.0",
+    "typescript": "~5.9.3"
+  }
+}

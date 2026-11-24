@@ -1,0 +1,35 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.trackified/trackified-mcp",
+  "title": "Trackified",
+  "description": "Track parcels across carriers: add trackings, read events, detect carriers, manage webhooks.",
+  "websiteUrl": "https://trackified.net",
+  "repository": {
+    "url": "https://github.com/trackified/trackified-mcp",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "trackified-mcp",
+      "version": "0.1.0",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        {
+          "name": "TRACKIFIED_API_KEY",
+          "description": "Trackified API key (tk_live_… or tk_test_…)",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "TRACKIFIED_BASE_URL",
+          "description": "API base URL (default https://api.trackified.net)",
+          "isRequired": false,
+          "isSecret": false
+        }
+      ]
+    }
+  ]
+}
